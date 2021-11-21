@@ -13,6 +13,11 @@ namespace Crypto_BankingREG.Models
         {
 
         }
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder); // This needs to go before the other rules!
+
+            modelBuilder.Entity<ApplicationUser>().ToTable("User");}
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<PaymentDetail> PaymentDetails { get; set; }
