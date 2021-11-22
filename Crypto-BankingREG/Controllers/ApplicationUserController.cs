@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Crypto_BankingREG.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Crypto_BankingREG.Controllers
 {
@@ -14,11 +15,14 @@ namespace Crypto_BankingREG.Controllers
     {
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
+        private AuthenticationContext _context;
 
-        public ApplicationUserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+
+        public ApplicationUserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuthenticationContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         // POST /api/ApplicationUser/Register
@@ -42,6 +46,12 @@ namespace Crypto_BankingREG.Controllers
 
                 throw ex;
             }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetApplicationUser()
+        {
+            return await _context.ApplicationUsers.ToListAsync();
         }
     }
 }
