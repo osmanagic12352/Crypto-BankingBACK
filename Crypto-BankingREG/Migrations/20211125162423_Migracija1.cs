@@ -65,6 +65,22 @@ namespace Crypto_BankingREG.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Transakcija",
+                columns: table => new
+                {
+                    TransakcijaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NazivValute = table.Column<string>(type: "nvarchar (20)", nullable: true),
+                    Kolicina = table.Column<decimal>(type: "decimal (10,4)", nullable: false),
+                    VrstaTransakcije = table.Column<string>(type: "nvarchar (8)", nullable: true),
+                    CryptoAdresa = table.Column<string>(type: "nvarchar (100)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transakcija", x => x.TransakcijaId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -229,6 +245,9 @@ namespace Crypto_BankingREG.Migrations
 
             migrationBuilder.DropTable(
                 name: "PaymentDetails");
+
+            migrationBuilder.DropTable(
+                name: "Transakcija");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

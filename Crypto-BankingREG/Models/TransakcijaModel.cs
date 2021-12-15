@@ -18,7 +18,7 @@ namespace Crypto_BankingREG.Models
 
 
         [Column(TypeName = "decimal (10,4)")]
-        public string Kolicina { get; set; }
+        public decimal Kolicina { get; set; }
 
 
         [Column(TypeName = "nvarchar (8)")]

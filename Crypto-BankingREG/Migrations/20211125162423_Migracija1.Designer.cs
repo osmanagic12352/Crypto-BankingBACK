@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Crypto_BankingREG.Migrations
 {
     [DbContext(typeof(AuthenticationContext))]
-    [Migration("20211014164842_Migracija1")]
+    [Migration("20211125162423_Migracija1")]
     partial class Migracija1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,30 @@ namespace Crypto_BankingREG.Migrations
                     b.HasKey("UplataId");
 
                     b.ToTable("PaymentDetails");
+                });
+
+            modelBuilder.Entity("Crypto_BankingREG.Models.TransakcijaModel", b =>
+                {
+                    b.Property<int>("TransakcijaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CryptoAdresa")
+                        .HasColumnType("nvarchar (100)");
+
+                    b.Property<decimal>("Kolicina")
+                        .HasColumnType("decimal (10,4)");
+
+                    b.Property<string>("NazivValute")
+                        .HasColumnType("nvarchar (20)");
+
+                    b.Property<string>("VrstaTransakcije")
+                        .HasColumnType("nvarchar (8)");
+
+                    b.HasKey("TransakcijaId");
+
+                    b.ToTable("Transakcija");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

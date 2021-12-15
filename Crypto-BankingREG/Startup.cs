@@ -1,4 +1,5 @@
 using Crypto_BankingREG.Models;
+using Crypto_BankingREG.Models.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -32,10 +33,17 @@ namespace Crypto_BankingREG
 
             services.AddControllers();
 
+            services.AddTransient<PaymentDetailService>();
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             services.AddDbContext<AuthenticationContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Konekcija")));
 
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddEntityFrameworkStores<AuthenticationContext>();
+
+            //services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //     .AddEntityFrameworkStores<AuthenticationContext>();
 
             services.AddSwaggerGen(c =>
             {
