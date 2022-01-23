@@ -8,9 +8,9 @@ namespace Crypto_BankingREG.Models.Service
 {
     public class PaymentDetailService
     {
-        private AuthenticationContext _context;
+        private MainContext _context;
 
-        public PaymentDetailService(AuthenticationContext context)
+        public PaymentDetailService(MainContext context)
         {
             _context = context;
         }
@@ -35,8 +35,33 @@ namespace Crypto_BankingREG.Models.Service
         }
         public PaymentDetail GetPaymentDetailById(int cardId)
         {
-            var cardId = _context.PaymentDetails.FirstOrDefault(n => n.UplataId == cardId)
-            return cardId;
+            var paymentDetail = _context.PaymentDetails.FirstOrDefault(n => n.Id == cardId);
+            return paymentDetail;
+        }
+
+        public PaymentDetail UpdatePaymentDetailById(int cardId, PaymentDetailView card)
+        {
+            var _card = _context.PaymentDetails.FirstOrDefault(n => n.Id == cardId);
+            if (_card != null)
+            {
+                _card.NazivVlasnikaKartice = card.NazivVlasnikaKartice;
+                _card.BrojKartice = card.BrojKartice;
+                _card.DatumIstekaKartice = card.DatumIstekaKartice;
+                _card.CVV = card.CVV;
+
+                _context.SaveChanges();
+            }
+            return _card;
+        }
+
+        public void DeletePaymentDetailById(int cardId)
+        {
+            var _card = _context.PaymentDetails.FirstOrDefault(n => n.Id == cardId);
+            if (_card != null)
+            {
+                _context.PaymentDetails.Remove(_card);
+                _context.SaveChanges();
+            }
         }
     }
 }

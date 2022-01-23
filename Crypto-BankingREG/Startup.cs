@@ -37,10 +37,10 @@ namespace Crypto_BankingREG
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            services.AddDbContext<AuthenticationContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Konekcija")));
+            services.AddDbContext<MainContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Konekcija")));
 
             services.AddDefaultIdentity<ApplicationUser>()
-                .AddEntityFrameworkStores<AuthenticationContext>();
+                .AddEntityFrameworkStores<MainContext>();
 
             //services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //     .AddEntityFrameworkStores<AuthenticationContext>();

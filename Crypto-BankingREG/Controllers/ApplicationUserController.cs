@@ -7,6 +7,7 @@ using Crypto_BankingREG.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Crypto_BankingREG.Models.Service;
 
 namespace Crypto_BankingREG.Controllers
 {
@@ -17,10 +18,11 @@ namespace Crypto_BankingREG.Controllers
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
         private readonly IMapper _mapper;
-        private readonly AuthenticationContext _context;
+        private readonly MainContext _context;
+        public ApplicationUserService _user;
 
 
-        public ApplicationUserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMapper mapper, AuthenticationContext context)
+        public ApplicationUserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMapper mapper, MainContext context, ApplicationUserService user)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -28,29 +30,51 @@ namespace Crypto_BankingREG.Controllers
             _context = context;
         }
 
-        // POST /api/ApplicationUser/Register
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetApplicationUser()
+        [HttpPost("add-card")]
+        public IActionResult PostUser([FromBody] ApplicationUserView user)
         {
-            return await _context.ApplicationUsers.ToListAsync();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<ApplicationUser>> PostPaymentDetail(ApplicationUserView applicationUser)
-        {
-            var app = _mapper.Map<ApplicationUser>(applicationUser);
-            app = new ApplicationUser()
-            {
-                UserName = app.UserName,
-                Email = app.Email,
-                FullName = app.FullName,
-                PasswordHash = applicationUser.Password
-            };
-            _context.ApplicationUsers.Add(app);
-            await _context.SaveChangesAsync();
-
+            _user.PostUser(user);
             return Ok();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // POST /api/ApplicationUser/Register
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetApplicationUser()
+        //{
+        //    return await _context.ApplicationUsers.ToListAsync();
+        //}
+
+        //[HttpPost]
+        //public async Task<ActionResult<ApplicationUser>> PostPaymentDetail(ApplicationUserView applicationUser)
+        //{
+        //    var app = _mapper.Map<ApplicationUser>(applicationUser);
+        //    app = new ApplicationUser()
+        //    {
+        //        UserName = app.UserName,
+        //        Email = app.Email,
+        //        FullName = app.FullName,
+        //        PasswordHash = applicationUser.Password
+        //    };
+        //    _context.ApplicationUsers.Add(app);
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok();
+        //}
 
         //[HttpPost]
         //[Route("Register")]
@@ -76,9 +100,9 @@ namespace Crypto_BankingREG.Controllers
         //    //}
         //    return Ok();
 
-            
+
         //    }
 
-        }
+    }
     }
 

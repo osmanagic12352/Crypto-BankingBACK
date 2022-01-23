@@ -21,14 +21,40 @@ namespace Crypto_BankingREG.Controllers
             _card = card;
         }
 
-        [HttpPost]
+        [HttpPost("add-card")]
         public IActionResult AddPaymentDetail([FromBody]PaymentDetailView card)
         {
             _card.AddPaymentDetail(card);
             return Ok();
         }
 
+        [HttpGet("get-all-cards")]
+        public IActionResult GetAllPaymentDetails()
+        {
+            var allPaymentDetails = _card.GetAllPaymentDetails();
+            return Ok(allPaymentDetails);
+        }
 
+        [HttpGet("get-card-by-id/{id}")]
+        public IActionResult GetPaymentDetailById(int id)
+        {
+            var card = _card.GetPaymentDetailById(id);
+            return Ok(card);
+        }
+
+        [HttpPut("Edit-card-details/{id}")]
+        public IActionResult UpdatePaymentDetailById(int id, [FromBody]PaymentDetailView card)
+        {
+            var cardUpdate = _card.UpdatePaymentDetailById(id, card);
+            return Ok(cardUpdate);
+        }
+
+        [HttpDelete("Delete-card/{id}")]
+        public IActionResult DeletePaymentDetailById(int id)
+        {
+            _card.DeletePaymentDetailById(id);
+            return Ok();
+        }
 
 
 

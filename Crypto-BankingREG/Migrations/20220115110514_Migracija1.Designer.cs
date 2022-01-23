@@ -4,14 +4,16 @@ using Crypto_BankingREG.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Crypto_BankingREG.Migrations
 {
-    [DbContext(typeof(AuthenticationContext))]
-    partial class AuthenticationContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(MainContext))]
+    [Migration("20220115110514_Migracija1")]
+    partial class Migracija1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,7 +23,7 @@ namespace Crypto_BankingREG.Migrations
 
             modelBuilder.Entity("Crypto_BankingREG.Models.PaymentDetail", b =>
                 {
-                    b.Property<int>("UplataId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -38,7 +40,7 @@ namespace Crypto_BankingREG.Migrations
                     b.Property<string>("NazivVlasnikaKartice")
                         .HasColumnType("nvarchar (100)");
 
-                    b.HasKey("UplataId");
+                    b.HasKey("Id");
 
                     b.ToTable("PaymentDetails");
                 });
@@ -59,10 +61,15 @@ namespace Crypto_BankingREG.Migrations
                     b.Property<string>("NazivValute")
                         .HasColumnType("nvarchar (20)");
 
+                    b.Property<int>("UplataId")
+                        .HasColumnType("int");
+
                     b.Property<string>("VrstaTransakcije")
                         .HasColumnType("nvarchar (8)");
 
                     b.HasKey("TransakcijaId");
+
+                    b.HasIndex("UplataId");
 
                     b.ToTable("Transakcija");
                 });
@@ -283,6 +290,17 @@ namespace Crypto_BankingREG.Migrations
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
 
+            modelBuilder.Entity("Crypto_BankingREG.Models.TransakcijaModel", b =>
+                {
+                    b.HasOne("Crypto_BankingREG.Models.PaymentDetail", "Uplata")
+                        .WithMany("Transakcije")
+                        .HasForeignKey("UplataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Uplata");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -332,6 +350,11 @@ namespace Crypto_BankingREG.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Crypto_BankingREG.Models.PaymentDetail", b =>
+                {
+                    b.Navigation("Transakcije");
                 });
 #pragma warning restore 612, 618
         }

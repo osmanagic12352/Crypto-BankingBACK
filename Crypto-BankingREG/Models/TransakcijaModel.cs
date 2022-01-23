@@ -12,7 +12,6 @@ namespace Crypto_BankingREG.Models
         [Key]
         public int TransakcijaId { get; set; }
 
-
         [Column(TypeName = "nvarchar (20)")]
         public string NazivValute { get; set; }
 
@@ -27,5 +26,15 @@ namespace Crypto_BankingREG.Models
 
         [Column(TypeName = "nvarchar (100)")]
         public string CryptoAdresa { get; set; }
+
+
+        //Relacija 1:N - 1 User, više transakcija        
+        public ApplicationUser User { get; set; }
+        public string UserId { get; set; }
+
+        //Relacija 1:N - 1 kartica, više transakcija
+
+        public PaymentDetail Uplata { get; set; }
+        public int UplataId { get; set; }
     }
 }
