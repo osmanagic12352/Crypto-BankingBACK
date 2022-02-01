@@ -1,5 +1,6 @@
-using Crypto_BankingREG.Models;
+﻿using Crypto_BankingREG.Models;
 using Crypto_BankingREG.Models.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,10 +11,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Crypto_BankingREG
@@ -33,28 +36,78 @@ namespace Crypto_BankingREG
 
             services.AddControllers();
 
+            services.AddDbContext<DBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Konekcija")));
+
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<DBContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = true;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+
+                    ValidIssuer = "https://localhost:5001",
+                    ValidAudience = "https://localhost:5001",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CryptoBanking123"))
+                };
+            });
+
             services.AddTransient<PaymentDetailService>();
 
+            services.AddTransient<TransakcijaService>();
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-            services.AddDbContext<MainContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Konekcija")));
-
-            services.AddDefaultIdentity<ApplicationUser>()
-                .AddEntityFrameworkStores<MainContext>();
+                
 
             //services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
             //     .AddEntityFrameworkStores<AuthenticationContext>();
-
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Crypto_BankingREG", Version = "v1" });
-            });
+           
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
             }
             );
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Crypto_BankingREG", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Upišite 'Bearer' (bez navodnika), zatim odvojite riječ i dodajte svoj token"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        }
+                        , new string[]{}
+                    }
+                });
+            });
+
             services.AddCors();
         }
 

@@ -8,9 +8,9 @@ namespace Crypto_BankingREG.Models.Service
 {
     public class TransakcijaService
     {
-        private MainContext _context;
+        private DBContext _context;
 
-        public TransakcijaService(MainContext context)
+        public TransakcijaService(DBContext context)
         {
             _context = context;
         }

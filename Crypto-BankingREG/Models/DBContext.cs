@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Crypto_BankingREG.Models
 {
-    public class MainContext : IdentityDbContext
+    public class DBContext : IdentityDbContext<ApplicationUser>
 
     {
-        public MainContext(DbContextOptions options) : base(options)
+        public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
 
         }

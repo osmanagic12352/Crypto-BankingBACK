@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Crypto_BankingREG.Models;
 using Crypto_BankingREG.Models.Service;
 using Crypto_BankingREG.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Crypto_BankingREG.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TransakcijaController : ControllerBase

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Crypto_BankingREG.Migrations
 {
-    [DbContext(typeof(MainContext))]
+    [DbContext(typeof(DBContext))]
     [Migration("20220115130054_Relacija3")]
     partial class Relacija3
     {
