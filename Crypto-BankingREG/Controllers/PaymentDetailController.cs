@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Crypto_BankingREG.Models;
+using Crypto_BankingREG.Models.Service;
+using Crypto_BankingREG.Models.ViewModels;
 
 namespace Crypto_BankingREG.Controllers
 {
@@ -13,95 +15,156 @@ namespace Crypto_BankingREG.Controllers
     [ApiController]
     public class PaymentDetailController : ControllerBase
     {
-        private readonly AuthenticationContext _context;
-
-        public PaymentDetailController(AuthenticationContext context)
+        public PaymentDetailService _card;
+        public PaymentDetailController(PaymentDetailService card)
         {
-            _context = context;
+            _card = card;
         }
 
-        // GET: api/PaymentDetail
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PaymentDetail>>> GetPaymentDetails()
+        [HttpPost("add-card")]
+        public IActionResult AddPaymentDetail([FromBody]PaymentDetailView card)
         {
-            return await _context.PaymentDetails.ToListAsync();
+            _card.AddPaymentDetail(card);
+            return Ok();
         }
 
-        // GET: api/PaymentDetail/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PaymentDetail>> GetPaymentDetail(int id)
+        [HttpGet("get-all-cards")]
+        public IActionResult GetAllPaymentDetails()
         {
-            var paymentDetail = await _context.PaymentDetails.FindAsync(id);
-
-            if (paymentDetail == null)
-            {
-                return NotFound();
-            }
-
-            return paymentDetail;
+            var allPaymentDetails = _card.GetAllPaymentDetails();
+            return Ok(allPaymentDetails);
         }
 
-        // PUT: api/PaymentDetail/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaymentDetail(int id, PaymentDetail paymentDetail)
+        [HttpGet("get-card-by-id/{id}")]
+        public IActionResult GetPaymentDetailById(int id)
         {
-            if (id != paymentDetail.UplataId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(paymentDetail).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PaymentDetailExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var card = _card.GetPaymentDetailById(id);
+            return Ok(card);
         }
 
-        // POST: api/PaymentDetail
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<PaymentDetail>> PostPaymentDetail(PaymentDetail paymentDetail)
+        [HttpPut("Edit-card-details/{id}")]
+        public IActionResult UpdatePaymentDetailById(int id, [FromBody]PaymentDetailView card)
         {
-            _context.PaymentDetails.Add(paymentDetail);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPaymentDetail", new { id = paymentDetail.UplataId }, paymentDetail);
+            var cardUpdate = _card.UpdatePaymentDetailById(id, card);
+            return Ok(cardUpdate);
         }
 
-        // DELETE: api/PaymentDetail/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePaymentDetail(int id)
+        [HttpDelete("Delete-card/{id}")]
+        public IActionResult DeletePaymentDetailById(int id)
         {
-            var paymentDetail = await _context.PaymentDetails.FindAsync(id);
-            if (paymentDetail == null)
-            {
-                return NotFound();
-            }
-
-            _context.PaymentDetails.Remove(paymentDetail);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            _card.DeletePaymentDetailById(id);
+            return Ok();
         }
 
-        private bool PaymentDetailExists(int id)
-        {
-            return _context.PaymentDetails.Any(e => e.UplataId == id);
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //private readonly AuthenticationContext _context;
+
+        //public PaymentDetailController(AuthenticationContext context)
+        //{
+        //    _context = context;
+        //}
+
+        //// GET: api/PaymentDetail
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<PaymentDetail>>> GetPaymentDetails()
+        //{
+        //    return await _context.PaymentDetails.ToListAsync();
+        //}
+
+        //// GET: api/PaymentDetail/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<PaymentDetail>> GetPaymentDetail(int id)
+        //{
+        //    var paymentDetail = await _context.PaymentDetails.FindAsync(id);
+
+        //    if (paymentDetail == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return paymentDetail;
+        //}
+
+        //// PUT: api/PaymentDetail/5
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutPaymentDetail(int id, PaymentDetail paymentDetail)
+        //{
+        //    if (id != paymentDetail.UplataId)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(paymentDetail).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!PaymentDetailExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
+
+        //// POST: api/PaymentDetail
+        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPost]
+        //public async Task<ActionResult<PaymentDetail>> PostPaymentDetail(PaymentDetail paymentDetail)
+        //{
+        //    _context.PaymentDetails.Add(paymentDetail);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction("GetPaymentDetail", new { id = paymentDetail.UplataId }, paymentDetail);
+        //}
+
+        //// DELETE: api/PaymentDetail/5
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeletePaymentDetail(int id)
+        //{
+        //    var paymentDetail = await _context.PaymentDetails.FindAsync(id);
+        //    if (paymentDetail == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _context.PaymentDetails.Remove(paymentDetail);
+        //    await _context.SaveChangesAsync();
+
+        //    return NoContent();
+        //}
+
+        //private bool PaymentDetailExists(int id)
+        //{
+        //    return _context.PaymentDetails.Any(e => e.UplataId == id);
+        //}
     }
 }

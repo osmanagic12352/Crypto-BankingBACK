@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Crypto_BankingREG.Migrations
 {
-    [DbContext(typeof(AuthenticationContext))]
-    partial class AuthenticationContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(MainContext))]
+    partial class MainContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace Crypto_BankingREG.Migrations
 
             modelBuilder.Entity("Crypto_BankingREG.Models.PaymentDetail", b =>
                 {
-                    b.Property<int>("UplataId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -38,9 +38,50 @@ namespace Crypto_BankingREG.Migrations
                     b.Property<string>("NazivVlasnikaKartice")
                         .HasColumnType("nvarchar (100)");
 
-                    b.HasKey("UplataId");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("PaymentDetails");
+                });
+
+            modelBuilder.Entity("Crypto_BankingREG.Models.TransakcijaModel", b =>
+                {
+                    b.Property<int>("TransakcijaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CryptoAdresa")
+                        .HasColumnType("nvarchar (100)");
+
+                    b.Property<decimal>("Kolicina")
+                        .HasColumnType("decimal (10,4)");
+
+                    b.Property<string>("NazivValute")
+                        .HasColumnType("nvarchar (20)");
+
+                    b.Property<int>("UplataId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("VrstaTransakcije")
+                        .HasColumnType("nvarchar (8)");
+
+                    b.HasKey("TransakcijaId");
+
+                    b.HasIndex("UplataId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Transakcija");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -259,6 +300,32 @@ namespace Crypto_BankingREG.Migrations
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });
 
+            modelBuilder.Entity("Crypto_BankingREG.Models.PaymentDetail", b =>
+                {
+                    b.HasOne("Crypto_BankingREG.Models.ApplicationUser", "User")
+                        .WithOne("PaymentDetail")
+                        .HasForeignKey("Crypto_BankingREG.Models.PaymentDetail", "UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Crypto_BankingREG.Models.TransakcijaModel", b =>
+                {
+                    b.HasOne("Crypto_BankingREG.Models.PaymentDetail", "Uplata")
+                        .WithMany("Transakcije")
+                        .HasForeignKey("UplataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Crypto_BankingREG.Models.ApplicationUser", "User")
+                        .WithMany("Transakcije")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Uplata");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -308,6 +375,18 @@ namespace Crypto_BankingREG.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Crypto_BankingREG.Models.PaymentDetail", b =>
+                {
+                    b.Navigation("Transakcije");
+                });
+
+            modelBuilder.Entity("Crypto_BankingREG.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("PaymentDetail");
+
+                    b.Navigation("Transakcije");
                 });
 #pragma warning restore 612, 618
         }

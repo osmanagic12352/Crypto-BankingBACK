@@ -10,7 +10,7 @@ namespace Crypto_BankingREG.Models
     public class PaymentDetail
     {
         [Key]
-        public int UplataId { get; set; }
+        public int Id { get; set; }
 
 
         [Column(TypeName = "nvarchar (100)")]
@@ -27,5 +27,12 @@ namespace Crypto_BankingREG.Models
 
         [Column(TypeName = "nvarchar (3)")]
         public string CVV { get; set; }
+
+        //Relacija 1:N - 1 kartica, više transakcija
+        public List<TransakcijaModel> Transakcije { get; set; }
+
+        //Relacija 1:1 - 1 User ima 1 karticu
+        public ApplicationUser User { get; set; }
+        public string UserId { get; set; }
     }
 }

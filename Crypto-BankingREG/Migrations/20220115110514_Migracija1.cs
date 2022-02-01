@@ -52,7 +52,7 @@ namespace Crypto_BankingREG.Migrations
                 name: "PaymentDetails",
                 columns: table => new
                 {
-                    UplataId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NazivVlasnikaKartice = table.Column<string>(type: "nvarchar (100)", nullable: true),
                     BrojKartice = table.Column<string>(type: "nvarchar (16)", nullable: true),
@@ -61,7 +61,7 @@ namespace Crypto_BankingREG.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PaymentDetails", x => x.UplataId);
+                    table.PrimaryKey("PK_PaymentDetails", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -170,6 +170,29 @@ namespace Crypto_BankingREG.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Transakcija",
+                columns: table => new
+                {
+                    TransakcijaId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    NazivValute = table.Column<string>(type: "nvarchar (20)", nullable: true),
+                    Kolicina = table.Column<decimal>(type: "decimal (10,4)", nullable: false),
+                    VrstaTransakcije = table.Column<string>(type: "nvarchar (8)", nullable: true),
+                    CryptoAdresa = table.Column<string>(type: "nvarchar (100)", nullable: true),
+                    UplataId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transakcija", x => x.TransakcijaId);
+                    table.ForeignKey(
+                        name: "FK_Transakcija_PaymentDetails_UplataId",
+                        column: x => x.UplataId,
+                        principalTable: "PaymentDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -208,6 +231,11 @@ namespace Crypto_BankingREG.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transakcija_UplataId",
+                table: "Transakcija",
+                column: "UplataId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -228,13 +256,16 @@ namespace Crypto_BankingREG.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "PaymentDetails");
+                name: "Transakcija");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "PaymentDetails");
         }
     }
 }
