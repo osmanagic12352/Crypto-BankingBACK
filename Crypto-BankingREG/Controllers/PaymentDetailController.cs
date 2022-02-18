@@ -9,6 +9,7 @@ using Crypto_BankingREG.Models;
 using Crypto_BankingREG.Models.Service;
 using Crypto_BankingREG.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Crypto_BankingREG.Controllers
 {
@@ -18,19 +19,36 @@ namespace Crypto_BankingREG.Controllers
     public class PaymentDetailController : ControllerBase
     {
         public PaymentDetailService _card;
+        private readonly ILogger<PaymentDetailController> _logger;
 
-        public PaymentDetailController(PaymentDetailService card)
+        public PaymentDetailController(PaymentDetailService card, ILogger<PaymentDetailController> logger)
         {
+            _logger = logger;
             _card = card;
         }
 
+        /// <summary>
+        /// Dodavanje kartice
+        /// </summary> 
         [HttpPost("add-card")]
-        public IActionResult AddPaymentDetail([FromBody]PaymentDetailView card)
+        public IActionResult AddPaymentDetail([FromBody]PaymentDetailView card, string id)
         {
-            _card.AddPaymentDetail(card);
-            return Ok();
+            try
+            {
+                _card.AddPaymentDetail(card, id);
+                return Ok();
+            }
+            catch (Exception a)
+            {
+                _logger.LogError(a.ToString());
+                return BadRequest(a.ToString());
+            }
+            
         }
 
+        /// <summary>
+        /// Dohvatanje svih kartica
+        /// </summary> 
         [HttpGet("get-all-cards")]
         public IActionResult GetAllPaymentDetails()
         {
@@ -38,25 +56,60 @@ namespace Crypto_BankingREG.Controllers
             return Ok(allPaymentDetails);
         }
 
+        /// <summary>
+        /// Dohvatanje odabrane korisnika
+        /// </summary> 
         [HttpGet("get-card-by-id/{id}")]
         public IActionResult GetPaymentDetailById(int id)
         {
-            var card = _card.GetPaymentDetailById(id);
-            return Ok(card);
+            try
+            {
+                var card = _card.GetPaymentDetailById(id);
+                return Ok(card);
+
+            }
+            catch (Exception d)
+            {
+                _logger.LogError(d.ToString());
+                return BadRequest(d.ToString());
+            }
         }
 
+        /// <summary>
+        /// Uređivanje podataka kartice
+        /// </summary> 
         [HttpPut("Edit-card-details/{id}")]
         public IActionResult UpdatePaymentDetailById(int id, [FromBody]PaymentDetailView card)
         {
-            var cardUpdate = _card.UpdatePaymentDetailById(id, card);
-            return Ok(cardUpdate);
+            try
+            {
+                var cardUpdate = _card.UpdatePaymentDetailById(id, card);
+                return Ok(cardUpdate);
+            }
+            catch (Exception b)
+            {
+                _logger.LogError(b.ToString());
+                return BadRequest(b.ToString());
+            }
         }
 
+        /// <summary>
+        /// Brisanje kartice
+        /// </summary> 
         [HttpDelete("Delete-card/{id}")]
         public IActionResult DeletePaymentDetailById(int id)
         {
-            _card.DeletePaymentDetailById(id);
-            return Ok();
+            try
+            {
+                _card.DeletePaymentDetailById(id);
+                return Ok();
+            }
+            catch (Exception c)
+            {
+                _logger.LogError(c.ToString());
+                return BadRequest(c.ToString());
+            }
+            
         }
 
 

@@ -29,7 +29,7 @@ namespace Crypto_BankingREG.Models
         public string CVV { get; set; }
 
         //Relacija 1:N - 1 kartica, više transakcija
-        public List<TransakcijaModel> Transakcije { get; set; }
+        //public List<TransakcijaModel> Transakcije { get; set; }
 
         //Relacija 1:1 - 1 User ima 1 karticu
         public ApplicationUser User { get; set; }
