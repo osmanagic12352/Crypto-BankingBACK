@@ -12,6 +12,9 @@ namespace Crypto_BankingREG.Models
         [Column(TypeName = "nvarchar(150)")]
         public string FullName { get; set; }
 
+        [Column(TypeName = "nvarchar(2)")]
+        public string Admin { get; set; }
+
         //Relacija 1:N - 1 User, više transakcija
         public List<TransakcijaModel> Transakcije { get; set; }
 

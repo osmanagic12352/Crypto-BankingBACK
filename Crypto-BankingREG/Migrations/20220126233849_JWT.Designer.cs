@@ -4,14 +4,16 @@ using Crypto_BankingREG.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Crypto_BankingREG.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20220126233849_JWT")]
+    partial class JWT
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,9 +28,6 @@ namespace Crypto_BankingREG.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("Admin")
-                        .HasColumnType("nvarchar(2)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()

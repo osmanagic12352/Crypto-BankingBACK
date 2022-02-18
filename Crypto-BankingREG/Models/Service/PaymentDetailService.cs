@@ -8,9 +8,9 @@ namespace Crypto_BankingREG.Models.Service
 {
     public class PaymentDetailService
     {
-        private MainContext _context;
+        private DBContext _context;
 
-        public PaymentDetailService(MainContext context)
+        public PaymentDetailService(DBContext context)
         {
             _context = context;
         }

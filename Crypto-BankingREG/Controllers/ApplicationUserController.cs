@@ -8,33 +8,128 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using Crypto_BankingREG.Models.Service;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using Crypto_BankingREG.Models.ViewModels;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Crypto_BankingREG.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class ApplicationUserController : ControllerBase
     {
-        private UserManager<ApplicationUser> _userManager;
-        private SignInManager<ApplicationUser> _signInManager;
-        private readonly IMapper _mapper;
-        private readonly MainContext _context;
-        public ApplicationUserService _user;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
+        //public ApplicationUserService _user;
 
 
-        public ApplicationUserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IMapper mapper, MainContext context, ApplicationUserService user)
+        public ApplicationUserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration/*, ApplicationUserService user*/)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _mapper = mapper;
-            _context = context;
+            _roleManager = roleManager;
+            _configuration = configuration;
+            //_user = user;
         }
 
-        [HttpPost("add-card")]
-        public IActionResult PostUser([FromBody] ApplicationUserView user)
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] ApplicationUserView userView)
         {
-            _user.PostUser(user);
-            return Ok();
+            var UserCheck = await _userManager.FindByNameAsync(userView.UserName);
+            if (UserCheck != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Greška", Message = "Username zauzet!" });
+
+            ApplicationUser user = new()
+            {
+                UserName = userView.UserName,
+                Email = userView.Email,
+                Admin = "NE",
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var result = await _userManager.CreateAsync(user, userView.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Greška", Message = "Kreiranje korisnika nije uspjelo!" });
+
+            return Ok(new Response { Status = "Uspješno", Message = "Uspješno registriran korisnik!" });
+        }
+
+        [HttpPost]
+        [Route("AdminRegister")]
+        public async Task<IActionResult> Admin([FromBody] ApplicationUserView userView) 
+        {
+            var UserCheck = await _userManager.FindByNameAsync(userView.UserName);
+            if (UserCheck != null)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Greška", Message = "Username zauzet!" });
+
+            ApplicationUser user = new()
+            {
+                UserName = userView.UserName,
+                Email = userView.Email,
+                FullName = userView.FullName,
+                Admin = "DA",
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            var result = await _userManager.CreateAsync(user, userView.Password);
+            if (!result.Succeeded)
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Greška", Message = "Kreiranje korisnika nije uspjelo!" });
+
+
+            if (!await _roleManager.RoleExistsAsync(Roles.Admin))
+                await _roleManager.CreateAsync(new IdentityRole(Roles.Admin));
+
+            if (!await _roleManager.RoleExistsAsync(Roles.User))
+                await _roleManager.CreateAsync(new IdentityRole(Roles.User));
+
+            if (await _roleManager.RoleExistsAsync(Roles.Admin))
+                await _userManager.AddToRoleAsync(user, Roles.Admin);
+
+            return Ok(new Response { Status = "Uspješno", Message = "Uspješno registriran Administrator!" });
+        }
+
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModelView userLogin) 
+        {
+            var UserCheck = await _userManager.FindByNameAsync(userLogin.UserName);
+            if(UserCheck != null && await _userManager.CheckPasswordAsync(UserCheck, userLogin.Password))
+            {
+                var userRoles = await _userManager.GetRolesAsync(UserCheck);
+
+                var authClaims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, UserCheck.UserName),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                };
+
+                foreach(var userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                }
+
+                var LoginKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CryptoBanking123"));
+
+                var token = new JwtSecurityToken(
+                    issuer: "https://localhost:5001",
+                    audience: "https://localhost:5001",
+                    expires: DateTime.Now.AddHours(2),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(LoginKey, SecurityAlgorithms.HmacSha256)
+                    );
+                return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token), expiration = token.ValidTo });
+            }
+
+            return Unauthorized();
         }
 
 
@@ -49,6 +144,19 @@ namespace Crypto_BankingREG.Controllers
 
 
 
+
+
+
+
+
+
+
+        //[HttpPost("add-user")]
+        //public IActionResult AddUser([FromBody] ApplicationUserView user)
+        //{
+        //    _user.AddUser(user);
+        //    return Ok();
+        //}
 
 
 
@@ -104,5 +212,5 @@ namespace Crypto_BankingREG.Controllers
         //    }
 
     }
-    }
+}
 
