@@ -9,6 +9,9 @@ using Crypto_BankingREG.Models;
 using Crypto_BankingREG.Models.Service;
 using Crypto_BankingREG.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
+using AutoMapper;
 
 namespace Crypto_BankingREG.Controllers
 {
@@ -18,19 +21,56 @@ namespace Crypto_BankingREG.Controllers
     public class PaymentDetailController : ControllerBase
     {
         public PaymentDetailService _card;
+        private readonly ILogger<PaymentDetailController> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private DBContext _context;
+        private readonly IMapper _mapper;
 
-        public PaymentDetailController(PaymentDetailService card)
+        public PaymentDetailController(PaymentDetailService card, ILogger<PaymentDetailController> logger, UserManager<ApplicationUser> userManager, DBContext context, IMapper mapper)
         {
+            _logger = logger;
             _card = card;
+            _userManager = userManager;
+            _context = context;
+            _mapper = mapper;
         }
 
+        /// <summary>
+        /// Dodavanje kartice
+        /// </summary> 
+        [Authorize]
         [HttpPost("add-card")]
-        public IActionResult AddPaymentDetail([FromBody]PaymentDetailView card)
+        public async Task<IActionResult> AddPaymentDetail(PaymentDetailView card)
         {
-            _card.AddPaymentDetail(card);
-            return Ok();
+            string userId = User.Claims.First(a => a.Type == "UserID").Value;
+            var _user = await _userManager.FindByIdAsync(userId);
+            if (_user != null)
+            {
+                if (_context.PaymentDetails.Any(a => a.BrojKartice == card.BrojKartice))
+                    throw new Exception("Sljedeći broj kartice se već koristi:" + card.BrojKartice);
+                var _card = _mapper.Map<PaymentDetail>(card);
+                _card = new PaymentDetail()
+                {
+                    NazivVlasnikaKartice = card.NazivVlasnikaKartice,
+                    BrojKartice = card.BrojKartice,
+                    DatumIstekaKartice = card.DatumIstekaKartice,
+                    CVV = card.CVV,
+                    UserId = userId
+                };
+                _context.PaymentDetails.Add(_card);
+                _context.SaveChanges();
+                return Ok();
+            }
+            else
+            {
+                throw new Exception("Unjeli ste nepostojeći Id korisnika ili se isti već koristi!");
+            }
         }
 
+        /// <summary>
+        /// Dohvatanje svih kartica
+        /// </summary> 
+        [Authorize (Roles ="Admin")]
         [HttpGet("get-all-cards")]
         public IActionResult GetAllPaymentDetails()
         {
@@ -38,25 +78,63 @@ namespace Crypto_BankingREG.Controllers
             return Ok(allPaymentDetails);
         }
 
+        /// <summary>
+        /// Dohvatanje odabrane korisnika
+        /// </summary> 
+        [Authorize (Roles ="Admin")]
         [HttpGet("get-card-by-id/{id}")]
         public IActionResult GetPaymentDetailById(int id)
         {
-            var card = _card.GetPaymentDetailById(id);
-            return Ok(card);
+            try
+            {
+                var card = _card.GetPaymentDetailById(id);
+                return Ok(card);
+
+            }
+            catch (Exception d)
+            {
+                _logger.LogError(d.ToString());
+                return BadRequest(d.ToString());
+            }
         }
 
+        /// <summary>
+        /// Uređivanje podataka kartice
+        /// </summary> 
+        [Authorize (Roles ="Admin")]
         [HttpPut("Edit-card-details/{id}")]
         public IActionResult UpdatePaymentDetailById(int id, [FromBody]PaymentDetailView card)
         {
-            var cardUpdate = _card.UpdatePaymentDetailById(id, card);
-            return Ok(cardUpdate);
+            try
+            {
+                var cardUpdate = _card.UpdatePaymentDetailById(id, card);
+                return Ok(cardUpdate);
+            }
+            catch (Exception b)
+            {
+                _logger.LogError(b.ToString());
+                return BadRequest(b.ToString());
+            }
         }
 
+        /// <summary>
+        /// Brisanje kartice
+        /// </summary> 
+        [Authorize (Roles ="Admin")]
         [HttpDelete("Delete-card/{id}")]
         public IActionResult DeletePaymentDetailById(int id)
         {
-            _card.DeletePaymentDetailById(id);
-            return Ok();
+            try
+            {
+                _card.DeletePaymentDetailById(id);
+                return Ok();
+            }
+            catch (Exception c)
+            {
+                _logger.LogError(c.ToString());
+                return BadRequest(c.ToString());
+            }
+            
         }
 
 

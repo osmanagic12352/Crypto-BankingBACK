@@ -33,8 +33,7 @@ namespace Crypto_BankingREG.Models
         public string UserId { get; set; }
 
         //Relacija 1:N - 1 kartica, više transakcija
-
-        public PaymentDetail Uplata { get; set; }
-        public int UplataId { get; set; }
+        //public PaymentDetail Uplata { get; set; }
+        //public int UplataId { get; set; }
     }
 }

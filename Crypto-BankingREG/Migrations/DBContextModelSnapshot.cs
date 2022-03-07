@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Crypto_BankingREG.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    partial class DBContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -26,9 +26,6 @@ namespace Crypto_BankingREG.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("Admin")
-                        .HasColumnType("nvarchar(2)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -137,9 +134,6 @@ namespace Crypto_BankingREG.Migrations
                     b.Property<string>("NazivValute")
                         .HasColumnType("nvarchar (20)");
 
-                    b.Property<int>("UplataId")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -147,8 +141,6 @@ namespace Crypto_BankingREG.Migrations
                         .HasColumnType("nvarchar (8)");
 
                     b.HasKey("TransakcijaId");
-
-                    b.HasIndex("UplataId");
 
                     b.HasIndex("UserId");
 
@@ -290,24 +282,18 @@ namespace Crypto_BankingREG.Migrations
                 {
                     b.HasOne("Crypto_BankingREG.Models.ApplicationUser", "User")
                         .WithOne("PaymentDetail")
-                        .HasForeignKey("Crypto_BankingREG.Models.PaymentDetail", "UserId");
+                        .HasForeignKey("Crypto_BankingREG.Models.PaymentDetail", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("Crypto_BankingREG.Models.TransakcijaModel", b =>
                 {
-                    b.HasOne("Crypto_BankingREG.Models.PaymentDetail", "Uplata")
-                        .WithMany("Transakcije")
-                        .HasForeignKey("UplataId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Crypto_BankingREG.Models.ApplicationUser", "User")
                         .WithMany("Transakcije")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Uplata");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("User");
                 });
@@ -367,11 +353,6 @@ namespace Crypto_BankingREG.Migrations
                 {
                     b.Navigation("PaymentDetail");
 
-                    b.Navigation("Transakcije");
-                });
-
-            modelBuilder.Entity("Crypto_BankingREG.Models.PaymentDetail", b =>
-                {
                     b.Navigation("Transakcije");
                 });
 #pragma warning restore 612, 618

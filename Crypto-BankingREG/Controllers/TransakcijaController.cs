@@ -9,6 +9,7 @@ using Crypto_BankingREG.Models;
 using Crypto_BankingREG.Models.Service;
 using Crypto_BankingREG.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace Crypto_BankingREG.Controllers
 {
@@ -18,18 +19,39 @@ namespace Crypto_BankingREG.Controllers
     public class TransakcijaController : ControllerBase
     {
         public TransakcijaService _transakcije;
-        public TransakcijaController(TransakcijaService transakcije)
+        private readonly ILogger<TransakcijaController> _logger;
+
+
+        public TransakcijaController(TransakcijaService transakcije, ILogger<TransakcijaController> logger)
         {
             _transakcije = transakcije;
+            _logger = logger;
         }
 
+        /// <summary>
+        /// Dodavanje transakcije
+        /// </summary> 
+        [Authorize]
         [HttpPost("add-transakcija")]
-        public IActionResult Addtransakciju([FromBody] TransakcijaView transakcije)
+        public IActionResult Addtransakciju([FromBody] TransakcijaView transakcije, string UserID)
         {
-            _transakcije.AddTransakciju(transakcije);
-            return Ok();
+            try
+            {
+                _transakcije.AddTransakciju(transakcije, UserID);
+                return Ok();
+            }
+            catch (Exception a)
+            {
+                _logger.LogError(a.ToString());
+                return BadRequest(a.ToString());
+            }
+            
         }
 
+        /// <summary>
+        /// Dohvatanje svih transakcija
+        /// </summary> 
+        [Authorize(Roles = "Admin")]
         [HttpGet("Get-all-transakcije")]
         public IActionResult GetAllTransakcije()
         {
@@ -37,25 +59,62 @@ namespace Crypto_BankingREG.Controllers
             return Ok(AllTransakcije);
         }
 
+        /// <summary>
+        /// Dohvatanje pojedine transakcije
+        /// </summary> 
+        [Authorize (Roles ="Admin")]
         [HttpGet("get-transakciju-by-id/{id}")]
         public IActionResult GetTransakcijuById(int id)
         {
-            var card = _transakcije.GetTransakcijuById(id);
-            return Ok(card);
+            try
+            {
+                var card = _transakcije.GetTransakcijuById(id);
+                return Ok(card);
+            }
+            catch (Exception b)
+            {
+                _logger.LogError(b.ToString());
+                return BadRequest(b.ToString());
+            }
         }
 
+        /// <summary>
+        /// Uređivanje transakcije
+        /// </summary> 
+        [Authorize(Roles = "Admin")]
         [HttpPut("Edit-transakciju/{id}")]
         public IActionResult UpdateTransakcijuById(int id, [FromBody] TransakcijaView transakcija)
         {
-            var transakcijaUpdate = _transakcije.UpdateTransakcijuById(id, transakcija);
-            return Ok(transakcijaUpdate);
+            try
+            {
+                var transakcijaUpdate = _transakcije.UpdateTransakcijuById(id, transakcija);
+                return Ok(transakcijaUpdate);
+
+            }
+            catch (Exception d)
+            {
+                _logger.LogError(d.ToString());
+                return BadRequest(d.ToString());
+            }
         }
 
+        /// <summary>
+        /// Brisanje transakcije
+        /// </summary> 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete-transakciju/{id}")]
         public IActionResult DeleteTransakcijuById(int id)
         {
-            _transakcije.DeleteTransakcijuById(id);
-            return Ok();
+            try
+            {
+                _transakcije.DeleteTransakcijuById(id);
+                return Ok();
+            }
+            catch (Exception c)
+            {
+                _logger.LogError(c.ToString());
+                return BadRequest(c.ToString());
+            }
         }
     }
 }

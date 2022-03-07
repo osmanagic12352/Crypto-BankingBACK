@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,6 +68,8 @@ namespace Crypto_BankingREG
 
             services.AddTransient<TransakcijaService>();
 
+            services.AddTransient<ApplicationUserService>();
+
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
                 
 
@@ -76,7 +79,8 @@ namespace Crypto_BankingREG
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireUppercase = false;
-                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredUniqueChars = 0;
             }
             );
 
@@ -106,9 +110,15 @@ namespace Crypto_BankingREG
                         , new string[]{}
                     }
                 });
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "Crypto-BankingREG.xml");
+                c.IncludeXmlComments(filePath);
             });
 
             services.AddCors();
+
+            services.AddControllersWithViews()
+                    .AddNewtonsoftJson(options =>
+                                       options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -116,8 +126,8 @@ namespace Crypto_BankingREG
         {
             app.UseCors(options => options.WithOrigins("http://localhost:4200")
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            );
+            .AllowAnyHeader());
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
