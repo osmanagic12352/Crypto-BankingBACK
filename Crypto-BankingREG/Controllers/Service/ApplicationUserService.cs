@@ -27,7 +27,8 @@ namespace Crypto_BankingREG.Models.Service
         private readonly IMapper _mapper;
 
 
-        public ApplicationUserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, DBContext context, ILogger<ApplicationUserService> logger, IMapper mapper) { 
+        public ApplicationUserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, DBContext context, ILogger<ApplicationUserService> logger, IMapper mapper)
+        {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
@@ -37,44 +38,11 @@ namespace Crypto_BankingREG.Models.Service
             _mapper = mapper;
         }
 
-        public async Task<string> Login([FromBody] LoginModelView userLogin)
+
+
+
+        public async Task InsertUser(ApplicationUserView userView)
         {
-            var UserCheck = await _userManager.FindByNameAsync(userLogin.UserName);
-            if (UserCheck != null && await _userManager.CheckPasswordAsync(UserCheck, userLogin.Password))
-            {
-                var userRoles = await _userManager.GetRolesAsync(UserCheck);
-
-                var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, UserCheck.UserName),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                };
-
-                foreach (var userRole in userRoles)
-                {
-                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                }
-
-                var LoginKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CryptoBanking123"));
-
-                var TokenSettings = new JwtSecurityToken(
-                    issuer: "https://localhost:5001",
-                    audience: "https://localhost:5001",
-                    expires: DateTime.Now.AddHours(2),
-                    claims: authClaims,
-                    signingCredentials: new SigningCredentials(LoginKey, SecurityAlgorithms.HmacSha256)
-                    );
-                var Token = new JwtSecurityTokenHandler().WriteToken(TokenSettings);
-                return Token;
-            }
-            else
-            {
-                throw new Exception("Pogrešan Username ili Password!");
-            }
-        }
-
-
-        public async Task InsertUser(ApplicationUserView userView) {
 
 
             var UserCheck = await _userManager.FindByNameAsync(userView.UserName);
@@ -90,13 +58,13 @@ namespace Crypto_BankingREG.Models.Service
             }
 
             var user = _mapper.Map<ApplicationUser>(userView);
-                user = new ApplicationUser()
-                {
-                    UserName = userView.UserName,
-                    Email = userView.Email,
-                    FullName = userView.FullName,
-                    SecurityStamp = Guid.NewGuid().ToString()
-                };
+            user = new ApplicationUser()
+            {
+                UserName = userView.UserName,
+                Email = userView.Email,
+                FullName = userView.FullName,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
             //_context.ApplicationUsers.Add(user);
             //_context.SaveChanges();
 
@@ -121,7 +89,7 @@ namespace Crypto_BankingREG.Models.Service
             }
 
             var admin = _mapper.Map<ApplicationUser>(adminView);
-                admin = new ApplicationUser()
+            admin = new ApplicationUser()
             {
                 UserName = adminView.UserName,
                 Email = adminView.Email,
@@ -146,7 +114,7 @@ namespace Crypto_BankingREG.Models.Service
         }
 
 
-            public void DeleteUserById(string id)
+        public void DeleteUserById(string id)
         {
             var _user = _context.ApplicationUsers.FirstOrDefault(n => n.Id == id);
             if (_user != null)
@@ -189,10 +157,8 @@ namespace Crypto_BankingREG.Models.Service
             {
                 throw new Exception("Greška! Niste unjeli dobar Id usera?");
             }
-        }
-
+        }      
     }
-    
 }
 
 //public async Task InsertAdmin(ApplicationUserView adminView)
@@ -283,3 +249,44 @@ namespace Crypto_BankingREG.Models.Service
 //var token = _mapper.Map<LoginModelView>(UserCheck);
 //token.JWT = new JwtSecurityTokenHandler().WriteToken(TokenSettings);
 //return token.JWT;
+
+
+
+//LOGIN
+
+//public async Task<string> Login([FromBody] LoginModelView userLogin)
+//{
+//    var UserCheck = await _userManager.FindByNameAsync(userLogin.UserName);
+//    if (UserCheck != null && await _userManager.CheckPasswordAsync(UserCheck, userLogin.Password))
+//    {
+//        var userRoles = await _userManager.GetRolesAsync(UserCheck);
+
+//        var authClaims = new List<Claim>
+//                {
+//                    new Claim(ClaimTypes.Name, UserCheck.UserName),
+//                    new Claim("UserID", UserCheck.Id.ToString()),
+//                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+//                };
+
+//        foreach (var userRole in userRoles)
+//        {
+//            authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+//        }
+
+//        var LoginKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CryptoBanking123"));
+
+//        var TokenSettings = new JwtSecurityToken(
+//            issuer: "https://localhost:5001",
+//            audience: "https://localhost:5001",
+//            expires: DateTime.Now.AddHours(2),
+//            claims: authClaims,
+//            signingCredentials: new SigningCredentials(LoginKey, SecurityAlgorithms.HmacSha256)
+//            );
+//        var Token = new JwtSecurityTokenHandler().WriteToken(TokenSettings);
+//        return Token;
+//    }
+//    else
+//    {
+//        throw new Exception("Pogrešan Username ili Password!");
+//    }
+//}

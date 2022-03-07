@@ -31,6 +31,7 @@ namespace Crypto_BankingREG.Controllers
         /// <summary>
         /// Dodavanje transakcije
         /// </summary> 
+        [Authorize]
         [HttpPost("add-transakcija")]
         public IActionResult Addtransakciju([FromBody] TransakcijaView transakcije, string UserID)
         {
@@ -50,6 +51,7 @@ namespace Crypto_BankingREG.Controllers
         /// <summary>
         /// Dohvatanje svih transakcija
         /// </summary> 
+        [Authorize(Roles = "Admin")]
         [HttpGet("Get-all-transakcije")]
         public IActionResult GetAllTransakcije()
         {
@@ -60,6 +62,7 @@ namespace Crypto_BankingREG.Controllers
         /// <summary>
         /// Dohvatanje pojedine transakcije
         /// </summary> 
+        [Authorize (Roles ="Admin")]
         [HttpGet("get-transakciju-by-id/{id}")]
         public IActionResult GetTransakcijuById(int id)
         {
@@ -78,6 +81,7 @@ namespace Crypto_BankingREG.Controllers
         /// <summary>
         /// Uređivanje transakcije
         /// </summary> 
+        [Authorize(Roles = "Admin")]
         [HttpPut("Edit-transakciju/{id}")]
         public IActionResult UpdateTransakcijuById(int id, [FromBody] TransakcijaView transakcija)
         {
@@ -97,6 +101,7 @@ namespace Crypto_BankingREG.Controllers
         /// <summary>
         /// Brisanje transakcije
         /// </summary> 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("Delete-transakciju/{id}")]
         public IActionResult DeleteTransakcijuById(int id)
         {
